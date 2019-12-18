@@ -68,7 +68,7 @@ class Driver(object):
             self.riders.remove(r_id)
 
 class Rider(object):
-    def __init__(self, r_id, time_step, discount, gamma, o, d, tau, p_price, distance, omega):
+    def __init__(self, r_id, time_step, discount, gamma, o, d, tau, p_price, distance, omega, o_lat, o_lng, d_lat, d_lng):
         self.r_id = r_id
         self.time_step = time_step
         self.respond_status = False
@@ -78,6 +78,10 @@ class Rider(object):
         self.gamma = gamma
         self.o = o
         self.d = d
+        self.o_lat = o_lat
+        self.o_lng = o_lng
+        self.d_lat = d_lat
+        self.d_lng = d_lng
         self.tau = tau
         self.prob_SRide = -omega * self.discount + self.gamma
         self.isSRide = self.isSRide_()

@@ -14,12 +14,12 @@ if __name__ == '__main__':
 
     parser = init_parser()
     args = parser.parse_args()
-    ptitle('Pri_a{}_K{}_o{}'.format(args.a, args.K, args.omega))
+    ptitle('F_a{}_K{}_o{}'.format(args.a, args.K, args.omega))
 
     if not args.OMEGA: OMEGA = np.array([0.4, 0.42, 0.44, 0.46, 0.48, 0.5, 0.52, 0.54, 0.56, 0.58])
     else: OMEGA = [float(i) for i in args.OMEGA]
 
-    if not args.pricingDays: pricingDays = [16, 17, 18, 19, 20] #[0.49, 0.5, 0.51, 0.52]
+    if not args.pricingDays: pricingDays = [16] #[0.49, 0.5, 0.51, 0.52]
     else: pricingDays = [int(i) for i in args.pricingDays]
 
     # li = []
@@ -42,13 +42,9 @@ if __name__ == '__main__':
     }
 
 
-    onlineFairRSPricing(**pricing_args)
+    order_file = '../data/hk_d16to20_a{}_K{}_o{}.csv'.format(args.a, args.K, args.omega)
 
-    # if len(pricingDays) > 1:
-    #     order_file = '../data/haikou_10_{}to{}_3km_default.csv'.format(pricingDays[0], pricingDays[1])
-    # else:
-    #     order_file = '../data/haikou_10_{}_3km_default.csv'.format(pricingDays[0])
-    #
-    # fairness_metrics('ProfitOnly',K=args.K, order_file=order_file)
+    fairness_metrics('ProfitOnly',K=args.K, order_file=order_file)
+    fairness_metrics('PAA', K=args.K, order_file=order_file)
 
     print('################ END TIME: {} ################'.format(datetime.now().strftime("%m/%d/%Y, %H:%M:%S")))

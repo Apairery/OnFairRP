@@ -8,15 +8,11 @@ import networkx as nx
 import numpy as np
 from utils import read_all_riders
 from setproctitle import setproctitle as ptitle
-# ox.config(log_console=True, use_cache=True)
-# G = ox.graph_from_address('Haikou, Hainan, China', network_type='all')
-# print(type(G))
-# s = ox.get_nearest_node(G, (20.035, 110.364))
-# d =  ox.get_nearest_node(G, (20.005, 110.366))
-# print(nx.shortest_path_length(G, s, d, weight='length'))
-# print(nx.shortest_path(G, s, d, weight='length'))
 
-G = ox.graph_from_address('Haikou, Hainan, China', network_type='drive')
+ox.config(log_console=True, use_cache=True)
+# G = ox.graph_from_address('Haikou, Hainan, China', network_type='drive')
+# G = ox.graph_from_place('Haikou, Hainan, China', network_type='drive')
+G = ox.graph_from_address('Haikou, Hainan, China', distance=100000, network_type='drive') # n
 
 def map_to_tau(x):
     x = x['hour']

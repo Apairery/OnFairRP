@@ -11,7 +11,7 @@ def calPayment(rider1, rider2, mode, dis_list):
     ratio2 = dis_rider2 / total_dis
 
     ratio = {rider1: ratio1, rider2:ratio2}
-    budget = {rider1:rider1.p_price, rider2:rider2.p_price} # todo: ???
+    budget = {rider1:rider1.p_price, rider2:rider2.p_price}
     payment = {rider1:0, rider2:0}
 
     active_r = {}
@@ -23,7 +23,7 @@ def calPayment(rider1, rider2, mode, dis_list):
 
     for i in range(4):
         for rider in active_r[i]:
-            payment[rider] += budget[rider] * ratio[rider] * dis_list[i] / 1000
+            payment[rider] += budget[rider] * ratio[rider] * dis_list[i] / 1000 # 1km, todo:
             if payment[rider] > budget[rider]:
                 return -1, -1
             budget[rider] -= payment[rider]

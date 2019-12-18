@@ -54,7 +54,11 @@ def pre_run(G, fee_per_unit, cost_per_unit, speed, eta_peak, eta_off, omega, dol
                 tau = all_riders.loc[i, 'tau']
                 p_price = dis_cache[(o, d)] * fee_per_unit
                 time_step = all_riders.loc[i, 'time_step']
-                rider = Rider(r_id, time_step, dolp, gamma, o, d, tau, p_price, dis_cache[(o, d)], omega)
+                o_lat = all_riders.loc[i, 'o_lat']
+                o_lng = all_riders.loc[i, 'o_lng']
+                d_lat = all_riders.loc[i, 'd_lat']
+                d_lng = all_riders.loc[i, 'd_lng']
+                rider = Rider(r_id, time_step, dolp, gamma, o, d, tau, p_price, dis_cache[(o, d)], omega, o_lat, o_lng, d_lat, d_lng)
                 distribution_dict[(o, d, tau)] += 1
                 nums_all_riders += 1
                 if rider.isSRide:
@@ -127,7 +131,7 @@ def pre_run(G, fee_per_unit, cost_per_unit, speed, eta_peak, eta_off, omega, dol
                         active_Drivers.append(Driver(r_id, c_t, o, route_cache[(o, d)][1:], speed))
                         rider.responded()
                         rider.cost = rider.dis * cost_per_unit
-                        rider.profit = rider.dis * fee_per_unit - rider.cost
+                        rider.profit = rider.s_price - rider.cost
 
             # total_profit = 0
             # nums_shared = 0
@@ -155,7 +159,7 @@ def pre_run(G, fee_per_unit, cost_per_unit, speed, eta_peak, eta_off, omega, dol
     df['d_lat'] = partial_others['d_lat']
     df['d_lng'] = partial_others['d_lng']
     # df = df[df.distribution > 0]
-    df.to_csv('../data/others_10_{}to{}_3km.csv'.format(days[0], days[-1]), sep=',', index=False, header=True)
+    df.to_csv('../data/others_d{}to{}_a{}_o{}.csv'.format(days[0], days[-1], dolp, omega), sep=',', index=False, header=True)
 
     print(share_rates)
     print(total_profits)

@@ -6,17 +6,20 @@ from sys import maxsize
 import numpy as np
 from util.utils import get_shortest_path_length
 from calPaymentOfPAA import calPayment
+from scipy.spatial.distance import cosine
 
-def km_matching(cur_Riders, active_Drivers, all_Riders, G, c_t, route_cache, dis_cache, cost_per_unit=0.03 * 0.25, experiment='OnFair'):
+def km_matching(cur_Riders, active_Drivers, all_Riders, G, c_t, route_cache, dis_cache, cost_per_unit=0.003 * 0.25, experiment='OnFair'):
     if len(cur_Riders) == 0 or len(active_Drivers) == 0:
+        if experiment == 'PAA': return (route_cache, dis_cache), (0, 0)
         return route_cache, dis_cache
-    profit_matrix = [[0] * len(active_Drivers) for i in range(len(cur_Riders))]
+    profit_matrix = [[-1] * len(active_Drivers) for i in range(len(cur_Riders))]
     cost_matrix = np.zeros(shape=[len(cur_Riders), len(active_Drivers)])
     mode_matrix = np.zeros(shape=[len(cur_Riders), len(active_Drivers)])
     total_dis_matrix = np.zeros(shape=[len(cur_Riders), len(active_Drivers)])
     if experiment == 'PAA':
         pAA_payment_dict = {}
         nums_violate_budgets = 0
+        total_check = 0
     for i in range(len(cur_Riders)):
         rider2 = cur_Riders[i]
         for j in range(len(active_Drivers)):
@@ -45,31 +48,57 @@ def km_matching(cur_Riders, active_Drivers, all_Riders, G, c_t, route_cache, dis
             if not exists: dis_cache[(driver.c_loc, o2)] = dis7
             if -1 in [dis1, dis2, dis4, dis5, dis6, dis7]: profit_matrix[i][j] = -1
             else:
+                '''rules out'''
+                od1 = [rider1.d_lat - rider1.o_lat, rider1.d_lng - rider1.d_lat]
+                od2 = [rider2.d_lat - rider2.o_lat, rider2.d_lng - rider2.d_lat]
+                if 1 - cosine(od1, od2) <= 0: continue
                 dis_list = []
                 if dis1 > dis2:
                     total_dis = (dis6 + dis7 + dis2 + dis5)
+                    if total_dis / rider1.dis >= 1.55: continue
+                    if total_dis > rider1.dis + rider2.dis: continue
                     dis_list += [dis6, dis7, dis2, dis5]
                 else:
                     total_dis = (dis6 + dis7 + dis1 + dis4)
+                    if (dis6 + dis7 + dis1) / rider1.dis >= 1.55: continue
+                    if (dis1 + dis4) / rider2.dis >= 1.55: continue
+                    if total_dis > rider1.dis + rider2.dis: continue
                     dis_list += [dis6, dis7, dis1, dis4]
                     mode_matrix[i][j] = 1
                 cost = total_dis * cost_per_unit
                 cost_matrix[i][j] = cost
                 total_dis_matrix[i][j] = total_dis
                 if experiment == 'PAA':
+                    total_check += 1
                     payment1, payment2 = calPayment(rider1, rider2, mode_matrix[i][j], dis_list)
                     if payment1 > 0 and payment2 > 0:
-                        profit_matrix[i][j] = payment1 + payment2 - cost
+                        pass
+                        # profit = payment1 + payment2 - cost
+                        # # if profit < rider1.profit + rider2.profit: continue
+                        # if profit < 0:
+                        #     payment1 = payment2 = 1.2 * cost
+                        #     profit = cost
+                        # profit_matrix[i][j] = profit
                     else:
                         nums_violate_budgets += 1
-                        profit_matrix[i][j] = -1
+                    payment1 = 1.8 * cost if payment1 < 0 else payment1
+                    payment2 = 1.8 * cost if payment2 < 0 else payment2
+                    # profit = payment1 + payment2 - cost
+                    # if profit < 0:
+                    if payment1 + payment2 - cost < 0:
+                        payment1 = payment2 = 1.8 * cost
+                    payment1 = min(payment1, rider1.p_price)
+                    payment2 = min(payment2, rider2.p_price)
+                    profit = payment1 + payment2 - cost
+                    profit_matrix[i][j] = profit
                     pAA_payment_dict[(i, j)] = [payment1, payment2]
                 else:
                     profit = rider1.s_price + rider2.s_price - cost
+                    if profit < rider1.profit + rider2.profit: continue
                     profit_matrix[i][j] = profit
 
-
-    km_weights = make_cost_matrix(profit_matrix, lambda item: (maxsize - item) if item != 0 else DISALLOWED)
+    # km_weights = make_cost_matrix(profit_matrix, lambda item: (maxsize - item) if item != 0 else DISALLOWED)
+    km_weights = make_cost_matrix(profit_matrix)
     m = Munkres()
     indexes = m.compute(km_weights)
     for row, column in indexes:
@@ -97,7 +126,7 @@ def km_matching(cur_Riders, active_Drivers, all_Riders, G, c_t, route_cache, dis
                     rider2.s_price = pAA_payment_dict[(row, column)][1]
 
     if experiment == 'PAA':
-        return (route_cache, dis_cache), nums_violate_budgets
+        return (route_cache, dis_cache), (nums_violate_budgets, total_check)
     else:
         return route_cache, dis_cache
 
