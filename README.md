@@ -21,7 +21,7 @@
 ## Fairness
 The motivating example in Figure 2 captures the real fairness issue in ride-sharing pricing. Though Alice and Bob have similar origins and same destination, Alice will be charged less since Alice’s neighborhood has more potential passengers to share the ride, which is unfair to Bob. 
 
-To deal with this issue, we consider the notion of **individual fairness**. Specifically, if two riders are similar (e.g., in terms of origin, destination, and departure time), they should receive similar discounts. Our algorithm, OnFairRP, guarantees individual fairness among riders in an online way. That is, for two riders arriving at different times, the difference between the discount of the latter rider and the one of any previous rider is bounded by $K$ times the similarity of the two riders.
+To deal with this issue, we consider the notion of **individual fairness**. Specifically, if two riders are similar (e.g., in terms of origin, destination, and departure time), they should receive similar discounts. Our algorithm, OnFairRP, guarantees individual fairness among riders in an online way. That is, for two riders arriving at different times, the difference between the discount of the latter rider and the one of any previous rider is bounded by $$K$$ times the similarity of the two riders.
 
 ## Dependencies
 * scipy
