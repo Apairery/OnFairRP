@@ -1,4 +1,4 @@
-# Implementation of OnFairRP for Online Fair Ride-Sharing Pricing
+# OnFairRP: Online Fair Ride-Sharing Pricing
 <p align="center">
     <img src="readme_fig/fig1-cropped.png" border="0" width=50%/>
 </p>
